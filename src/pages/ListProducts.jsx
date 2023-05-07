@@ -7,7 +7,7 @@ import { NavLink } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import { useState } from "react";
 
-const ListProduct = () => {
+const ListProducts = () => {
   const { dataProducts } = useSelector((state) => state.globalReducer);
   const dispatch = useDispatch();
   const [itemOffset, setItemOffset] = useState(0);
@@ -82,4 +82,4 @@ const ListProduct = () => {
   );
 };
 
-export default ListProduct;
+export default ListProducts;

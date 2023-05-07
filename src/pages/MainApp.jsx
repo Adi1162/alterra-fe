@@ -5,7 +5,7 @@ import DetailProduct from "./DetailProduct";
 import LandingPage from "./LandingPage";
 import StoreManagement from "./StoreManagement";
 import DetailProductGraphQL from "./DetailProductGraphQL";
-import ListProduct from "./listProduct";
+import ListProducts from "./ListProducts";
 
 const MainApp = () => {
   return (
@@ -14,7 +14,7 @@ const MainApp = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/create-product" element={<CreateProduct />} />
         <Route path="/create-product-graphql" element={<StoreManagement />} />
-        <Route path="/list-product" element={<ListProduct />} />
+        <Route path="/list-product" element={<ListProducts />} />
         <Route path="/detail-product-graphql/:idProduct" element={<DetailProductGraphQL />} />
         <Route path="/detail-product/:idProduct" element={<DetailProduct />} />
       </Routes>
