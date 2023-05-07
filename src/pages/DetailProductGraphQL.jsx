@@ -22,17 +22,19 @@ const GetDetailProductById = gql`
 `;
 
 const GetReviewProduct = gql`
-  query MyQuery($id: uuid_comparison_exp!) {
-    review_product(where: { id: $id }) {
+  query MyQuery($_eq: String!) {
+    review_product(where: { idProduct: { _eq: $_eq } }) {
       review
       user
+      idProduct
+      idReview
     }
   }
 `;
 const AddReviewProduct = gql`
   mutation MyMutation($object: review_product_insert_input!) {
     insert_review_product_one(object: $object) {
-      id
+      idReview
     }
   }
 `;
@@ -47,9 +49,7 @@ const DetailProductGraphQL = () => {
   });
   const { data: dataReviewProduct } = useQuery(GetReviewProduct, {
     variables: {
-      id: {
-        _eq: idProduct,
-      },
+      _eq: idProduct,
     },
   });
   const [addReviewProduct] = useMutation(AddReviewProduct, {
@@ -101,7 +101,7 @@ const DetailProductGraphQL = () => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      id: idProduct,
+      idProduct: idProduct,
       user: "",
       review: "",
     },
@@ -122,7 +122,7 @@ const DetailProductGraphQL = () => {
 
   return (
     <>
-      <button className="btn btn-primary mx-4" onClick={() => navigate("/create-product")}>
+      <button className="btn btn-primary mx-4" onClick={() => navigate("/create-product-graphql")}>
         {"< Back"}
       </button>
       <Container>
@@ -149,7 +149,7 @@ const DetailProductGraphQL = () => {
               <p className="fw-bold">Review Product</p>
               <div style={{ width: "100%", height: "10vh", overflowY: "auto" }} className="bg-light">
                 <div className="p-2">
-                  {dataReviewProduct.review_product
+                  {dataReviewProduct?.review_product
                     ?.slice(0)
                     .reverse()
                     ?.map((review, id) => (
