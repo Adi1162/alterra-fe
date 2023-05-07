@@ -22,10 +22,10 @@ const CreateProduct = () => {
   const [itemOffset, setItemOffset] = useState(0);
   const itemsPerPage = 5;
   const endOffset = itemOffset + itemsPerPage;
-  const currentItems = dataProducts.slice(0).reverse().slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(dataProducts.length / itemsPerPage);
+  const currentItems = dataProducts?.slice(0).reverse().slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(dataProducts?.length / itemsPerPage);
   const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % dataProducts.length;
+    const newOffset = (event.selected * itemsPerPage) % dataProducts?.length;
     setItemOffset(newOffset);
   };
 
@@ -81,11 +81,13 @@ const CreateProduct = () => {
     setLanguage(!language);
   };
 
-  const handleUpdateProduct = () => {
+  const handleUpdateProduct = (values) => {
     dispatch(
       updateProduct({
         isUpdate,
         idProduct,
+        product: dataProducts,
+        newProduct: values,
       })
     );
     setTimeout(() => {

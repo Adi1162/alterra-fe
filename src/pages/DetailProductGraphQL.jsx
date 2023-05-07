@@ -1,12 +1,11 @@
 import { Col, Container, Row } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import HeroImage from "../assets/images/hero-img.png";
 import { useEffect } from "react";
-import { addReview } from "../config/Redux/Action";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import Swal from "sweetalert2";
 
 const GetDetailProductById = gql`
   query MyQuery($id: uuid!) {
@@ -21,10 +20,24 @@ const GetDetailProductById = gql`
     }
   }
 `;
+
+const GetReviewProduct = gql`
+  query MyQuery($id: uuid_comparison_exp!) {
+    review_product(where: { id: $id }) {
+      review
+      user
+    }
+  }
+`;
+const AddReviewProduct = gql`
+  mutation MyMutation($object: review_product_insert_input!) {
+    insert_review_product_one(object: $object) {
+      id
+    }
+  }
+`;
 const DetailProductGraphQL = () => {
-  const { isUpdate } = useSelector((state) => state.globalReducer);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const params = useParams();
   const { idProduct } = params;
   const { data: dataProduct, loading: loadingDetailProduct } = useQuery(GetDetailProductById, {
@@ -32,32 +45,81 @@ const DetailProductGraphQL = () => {
       id: idProduct,
     },
   });
+  const { data: dataReviewProduct } = useQuery(GetReviewProduct, {
+    variables: {
+      id: {
+        _eq: idProduct,
+      },
+    },
+  });
+  const [addReviewProduct] = useMutation(AddReviewProduct, {
+    refetchQueries: [GetDetailProductById],
+  });
   const dataDetailProducts = dataProduct?.product_by_pk;
 
   const handleSubmitReview = (values) => {
+    addReviewProduct({
+      variables: {
+        object: values,
+      },
+    }).then((response) => {
+      if (response) {
+        window.scrollTo(0, 0);
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
+
+        return Toast.fire({
+          icon: "success",
+          title: "Success Add Review",
+        });
+      } else {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener("mouseenter", Swal.stopTimer);
+            toast.addEventListener("mouseleave", Swal.resumeTimer);
+          },
+        });
+
+        return Toast.fire({
+          icon: "error",
+          title: "Failed Add Review",
+        });
+      }
+    });
     formik.resetForm();
-    dispatch(addReview({ idProduct, values, isUpdate, reviewProduct: dataDetailProducts?.reviewProduct }));
   };
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      name: "",
+      id: idProduct,
+      user: "",
       review: "",
     },
 
     validationSchema: Yup.object({
-      name: Yup.string().required("Name is required"),
+      user: Yup.string().required("Name is required"),
       review: Yup.string().required("Review is required"),
     }),
     onSubmit: handleSubmitReview,
   });
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [idProduct, isUpdate]);
+  }, []);
 
   if (loadingDetailProduct) {
     return <h2 className="text-center">Loading...</h2>;
   }
+
   return (
     <>
       <button className="btn btn-primary mx-4" onClick={() => navigate("/create-product")}>
@@ -87,12 +149,12 @@ const DetailProductGraphQL = () => {
               <p className="fw-bold">Review Product</p>
               <div style={{ width: "100%", height: "10vh", overflowY: "auto" }} className="bg-light">
                 <div className="p-2">
-                  {dataDetailProducts?.reviewProduct
+                  {dataReviewProduct.review_product
                     ?.slice(0)
                     .reverse()
                     ?.map((review, id) => (
                       <p key={id} className="fw-light">
-                        {review.name} - {review.review}
+                        {review.user} - {review.review}
                       </p>
                     ))}
                 </div>
@@ -107,11 +169,11 @@ const DetailProductGraphQL = () => {
             <h2>Add Review Product</h2>
             <form action="submit" onSubmit={formik.handleSubmit}>
               <div className="mb-3">
-                <label htmlFor="name" className="form-label">
+                <label htmlFor="user" className="form-label">
                   Your name
                 </label>
-                <input {...formik.getFieldProps("name")} type="text" id="name" className="form-control" placeholder="your name" aria-label="name" />
-                {formik.touched.name && formik.errors.name && <div className="error">{formik.errors.name}</div>}
+                <input {...formik.getFieldProps("user")} name="user" type="text" id="user" className="form-control" placeholder="your name" aria-label="user" />
+                {formik.touched.user && formik.errors.user && <div className="error">{formik.errors.user}</div>}
               </div>
               <div className="mb-3">
                 <label htmlFor="review" className="form-label">
