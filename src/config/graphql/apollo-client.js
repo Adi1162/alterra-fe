@@ -14,7 +14,7 @@ const httpLink = new HttpLink({
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: "ws://alterra-fe.hasura.app/v1/graphql",
+    url: "wss://alterra-fe.hasura.app/v1/graphql",
     connectionParams: {
       headers: {
         "Content-Type": "application/json",
