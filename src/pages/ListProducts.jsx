@@ -13,7 +13,7 @@ const ListProducts = () => {
   const [itemOffset, setItemOffset] = useState(0);
   const itemsPerPage = 8;
   const endOffset = itemOffset + itemsPerPage;
-  const currentItems = dataProducts?.slice(0).reverse().slice(itemOffset, endOffset);
+  const currentItems = dataProducts?.slice(0).reverse()?.slice(itemOffset, endOffset);
   const pageCount = Math.ceil(dataProducts?.length / itemsPerPage);
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsPerPage) % dataProducts?.length;
